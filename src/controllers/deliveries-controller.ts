@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { prisma } from "../database/prisma"
 import { string, z } from "zod"
+import { sendMessageToQueue } from "./message-producer"
 
 
 class DeliveriesController {
@@ -18,6 +19,8 @@ class DeliveriesController {
                 description
             }
         })
+        const deliveryMessage = JSON.stringify({ user_id, description, status: 'Created' });
+        await sendMessageToQueue('deliveryQueue', deliveryMessage);
         return response.status(201).json({message: "Entrega criada"})
     }
 
